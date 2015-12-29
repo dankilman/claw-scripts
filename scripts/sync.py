@@ -1,3 +1,4 @@
+#! /usr/bin/env claw
 ########
 # Copyright (c) 2015 GigaSpaces Technologies Ltd. All rights reserved
 #
@@ -13,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ############
-
-#! /usr/bin/env claw
 
 import os
 import time
