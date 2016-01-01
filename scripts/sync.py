@@ -164,7 +164,14 @@ def _sync_and_restart(env, package, service):
         sync.sync_and_restart(env, package, service)
 
 
-script = _sync_and_restart_all
-rest_service = lambda: _sync_and_restart('manager',
-                                         'manager_rest',
-                                         'restservice')
+def script():
+    """
+    This sync script will rsync code that lives on your machine to the
+    management machine through ssh.
+    After doing that, it will restart Cloudify services so they can
+    reload code that may have changed during rsync.
+
+    It assumes a bunch of directories are cloned at ~/dev/cloudify.
+    All code that usually gets installed on the manager, will be
+    patched. As such you need all repositories that include such code."""
+    _sync_and_restart_all()
