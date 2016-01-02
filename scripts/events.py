@@ -37,7 +37,7 @@ def script(execution_id,
 
     stream = open(output, 'w') if output else sys.stdout
 
-    def handle(self, batch):
+    def handle(batch):
         for event in batch:
             stream.write('{0}\n'.format(json.dumps(event)))
 
