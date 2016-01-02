@@ -26,7 +26,7 @@ from claw import cosmo
 def script(execution_id,
            output=None,
            batch_size=1000,
-           include_logs=False,
+           include_logs=True,
            timeout=3600):
     """Dump events of an execution in json format."""
 
@@ -35,21 +35,15 @@ def script(execution_id,
                                      batch_size=batch_size,
                                      include_logs=include_logs)
 
-    class Handler(object):
-        def __init__(self):
-            self.events = []
+    stream = open(output, 'w') if output else sys.stdout
 
-        def handle(self, batch):
-            self.events += batch
-            cosmo.logger.debug('Fetched: {0}'.format(len(self.events)))
-    handler = Handler()
+    def handle(self, batch):
+        for event in batch:
+            stream.write('{0}\n'.format(json.dumps(event)))
 
-    fetcher.fetch_and_process_events(events_handler=handler.handle,
-                                     timeout=timeout)
-
-    events_json = json.dumps(handler.events)
-    if not output:
-        sys.stdout.write(events_json)
-    else:
-        with open(output, 'w') as f:
-            f.write(events_json)
+    try:
+        fetcher.fetch_and_process_events(events_handler=handle,
+                                         timeout=timeout)
+    finally:
+        if output:
+            stream.close()
