@@ -23,7 +23,6 @@ import sh
 from claw import cosmo
 from claw.commands import bake
 
-
 package_dir = {
     'amqp_influxdb': 'cloudify-amqp-influxdb',
     'cloudify': 'cloudify-plugins-common',
@@ -79,13 +78,14 @@ env_packages = {
 
 class Synchronizer(object):
 
-    def __init__(self):
+    def __init__(self, source_root):
         handler_configuration = cosmo.handler_configuration
         self.ip = handler_configuration['manager_ip']
         self.user = handler_configuration['manager_user']
         self.hoststring = '{}@{}'.format(self.user, self.ip)
         self.key = os.path.expanduser(handler_configuration['manager_key'])
         self.control_path = cosmo.dir / 'control'
+        self.source_root = source_root
         self.ssh = bake(sh.ssh).bake(
             '-i', self.key,
             '-o', 'ControlPath={}'.format(self.control_path))
@@ -121,8 +121,8 @@ class Synchronizer(object):
 
     def _sync_package(self, env, package):
         self._sync(
-            src='~/dev/cloudify/{}/{}'.format(
-                package_dir[package], package),
+            src='{}/{}/{}'.format(
+                self.source_root, package_dir[package], package),
             dest='/opt/{}/env/lib/python2.7/site-packages/{}'.format(
                 env, package))
 
@@ -154,24 +154,24 @@ class Synchronizer(object):
         self.close()
 
 
-def _sync_and_restart_all():
-    with Synchronizer() as sync:
+def _sync_and_restart_all(source_root):
+    with Synchronizer(source_root) as sync:
         sync.sync_and_restart_all()
 
 
-def _sync_and_restart(env, package, service):
-    with Synchronizer() as sync:
+def _sync_and_restart(env, package, service, source_root):
+    with Synchronizer(source_root) as sync:
         sync.sync_and_restart(env, package, service)
 
 
-def script():
+def script(source_root='~/dev/cloudify'):
     """
     This sync script will rsync code that lives on your machine to the
     management machine through ssh.
     After doing that, it will restart Cloudify services so they can
     reload code that may have changed during rsync.
 
-    It assumes a bunch of directories are cloned at ~/dev/cloudify.
-    All code that usually gets installed on the manager, will be
-    patched. As such you need all repositories that include such code."""
-    _sync_and_restart_all()
+    It assumes all of Cloudify Manager dependencies reside within <source_root>
+    For the list of dependencies, see the package_dir dict
+    """
+    _sync_and_restart_all(source_root)
