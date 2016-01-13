@@ -101,7 +101,12 @@ def _inject_env_var(ssh, port):
         return
 
     inject_env_cmd = \
-        "echo '{env_var}={port}' >> {file_path}".format(
+        """
+        # append new line if needed
+        ! [[ "$(tail -n1 {file_path})" =~ ^\ *$ ]] && echo '' >> {file_path}
+        # append env var
+        echo '{env_var}={port}' >> {file_path}
+        """.format(
             env_var=DEBUGGER_ENV_VAR,
             port=port,
             file_path=REST_SERVICE_ENV_FILE_PATH)
