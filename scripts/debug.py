@@ -47,7 +47,8 @@ class reverse_tunnel(object):
 
     def open(self):
         ssh_cmd = \
-            'ssh -NT -i {key} -R{port}:localhost:{port} {host_address}'.format(
+            'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ' +\
+            '-qNT -i {key} -R{port}:localhost:{port} {host_address}'.format(
                 key=self.key_path,
                 port=self.port,
                 host_address=self.host_address
