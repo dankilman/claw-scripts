@@ -87,6 +87,8 @@ class Synchronizer(object):
         self.control_path = cosmo.dir / 'control'
         self.source_root = source_root
         self.ssh = bake(sh.ssh).bake(
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'StrictHostKeyChecking=no',
             '-i', self.key,
             '-o', 'ControlPath={}'.format(self.control_path))
         self.ssh('-nNf',
