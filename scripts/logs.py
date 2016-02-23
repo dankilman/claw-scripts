@@ -15,13 +15,23 @@
 # limitations under the License.
 ############
 
+
+import shutil
+
+from sh import tar
+
 from claw import cosmo
+from claw.commands import cfy
 
 
-def script(*args):
-    """Run a celery command on the management worker"""
-    with cosmo.ssh() as ssh:
-        command = ('CELERY_WORK_DIR=/opt/mgmtworker/work '
-                   '/opt/mgmtworker/env/bin/celery --config=cloudify.broker_config '
-                   '{}'.format(' '.join(args)))
-        ssh.run(command)
+def script():
+    """Run 'cfy logs' and extract output to CONFIGURATION_DIR/logs"""
+    logs_dir = cosmo.dir / 'logs'
+    if logs_dir.exists():
+        shutil.rmtree(logs_dir, ignore_errors=True)
+    logs_dir.mkdir()
+    logs_tar = logs_dir / 'logs.tar.gz'
+    with logs_dir:
+        cfy.logs.get(destination_path=logs_tar).wait()
+        tar('xf', logs_tar, strip_components=1)
+        logs_tar.remove()
