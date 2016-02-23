@@ -25,7 +25,7 @@ from claw.commands import cfy
 
 
 def script():
-    """Run 'cfy logs' and extract output to CONFIGURATION_DIR/logs"""
+    """Run 'cfy logs get' and extract output to CONFIGURATION_DIR/logs"""
     logs_dir = cosmo.dir / 'logs'
     if logs_dir.exists():
         shutil.rmtree(logs_dir, ignore_errors=True)
