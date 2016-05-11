@@ -24,4 +24,4 @@ def script(*args):
         command = ('CELERY_WORK_DIR=/opt/mgmtworker/work '
                    '/opt/mgmtworker/env/bin/celery --config=cloudify.broker_config '
                    '{}'.format(' '.join(args)))
-        ssh.run(command)
+        ssh.sudo(command)
