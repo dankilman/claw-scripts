@@ -21,7 +21,7 @@ import time
 import sh
 
 from claw import cosmo
-from claw.commands import bake
+from claw.cfy import bake
 
 package_dir = {
     'amqp_influxdb': 'cloudify-amqp-influxdb',
